@@ -5,6 +5,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ENV PIP_INDEX_URL=https://pypi.org/simple \
     PIP_EXTRA_INDEX_URL= \
     PIP_TRUSTED_HOST=
+ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 
 RUN rm -f /etc/apt/sources.list.d/ros*.list /etc/apt/sources.list.d/*ros* || true \
  && apt-get update \
@@ -20,7 +21,10 @@ RUN rm -f /etc/apt/sources.list.d/ros*.list /etc/apt/sources.list.d/*ros* || tru
  && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo ${UBUNTU_CODENAME}) main" \
     > /etc/apt/sources.list.d/ros2.list \
  && apt-get update \
- && DEBIAN_FRONTEND=noninteractive apt-get purge -y \
+ && python3 -m pip install --no-cache-dir colcon-mixin \
+ && colcon mixin add default https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml || true \
+ && colcon mixin update default || true \
+ && (DEBIAN_FRONTEND=noninteractive apt-get purge -y \
     opencv-dev \
     opencv-main \
     opencv-libs \
@@ -28,7 +32,7 @@ RUN rm -f /etc/apt/sources.list.d/ros*.list /etc/apt/sources.list.d/*ros* || tru
     opencv-scripts \
     opencv-licenses \
     python3-sympy \
-    python3-mpmath || true \
+    python3-mpmath || true) \
  && apt-get -y autoremove \
  && printf "[global]\nindex-url = https://pypi.org/simple\n" > /etc/pip.conf \
  && rm -rf /var/lib/apt/lists/*

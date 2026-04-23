@@ -9,6 +9,8 @@ This image refreshes the ROS apt keyring and rewrites `ros2.list` using `signed-
 - pip index/mirror issues in downstream builds (by setting `/etc/pip.conf` to use `https://pypi.org/simple`)
 - inherited pip environment overrides from upstream image (by setting `PIP_INDEX_URL`, clearing `PIP_EXTRA_INDEX_URL`, and clearing `PIP_TRUSTED_HOST`)
 - distutils-managed Python package conflicts during downstream pip installs (by removing distro `python3-sympy`/`python3-mpmath`)
+- missing `colcon` mixin support in downstream builds (by installing `colcon-mixin` and seeding default mixins)
+- ROS middleware mismatch in downstream colcon builds (by defaulting `RMW_IMPLEMENTATION=rmw_cyclonedds_cpp`)
 
 ## Build
 
