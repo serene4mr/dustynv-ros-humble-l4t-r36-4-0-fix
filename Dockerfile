@@ -1,6 +1,10 @@
-FROM dustynv/ros:humble-ros-base-l4t-r36.4.0
+ARG BASE_IMAGE=dustynv/ros:humble-desktop-l4t-r36.4.0
+FROM ${BASE_IMAGE}
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+ENV PIP_INDEX_URL=https://pypi.org/simple \
+    PIP_EXTRA_INDEX_URL= \
+    PIP_TRUSTED_HOST=
 
 RUN rm -f /etc/apt/sources.list.d/ros*.list /etc/apt/sources.list.d/*ros* || true \
  && apt-get update \
@@ -11,11 +15,20 @@ RUN rm -f /etc/apt/sources.list.d/ros*.list /etc/apt/sources.list.d/*ros* || tru
     lsb-release \
     python3-pip \
     python3-venv \
- && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-    python3.8-venv \
  && curl -fsSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key \
     | gpg --batch --yes --dearmor -o /usr/share/keyrings/ros-archive-keyring.gpg \
  && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo ${UBUNTU_CODENAME}) main" \
     > /etc/apt/sources.list.d/ros2.list \
  && apt-get update \
+ && DEBIAN_FRONTEND=noninteractive apt-get purge -y \
+    opencv-dev \
+    opencv-main \
+    opencv-libs \
+    opencv-python \
+    opencv-scripts \
+    opencv-licenses \
+    python3-sympy \
+    python3-mpmath || true \
+ && apt-get -y autoremove \
+ && printf "[global]\nindex-url = https://pypi.org/simple\n" > /etc/pip.conf \
  && rm -rf /var/lib/apt/lists/*
