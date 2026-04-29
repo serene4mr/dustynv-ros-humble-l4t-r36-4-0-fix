@@ -17,9 +17,6 @@ RUN rm -f /etc/apt/sources.list.d/ros*.list /etc/apt/sources.list.d/*ros* || tru
     lsb-release \
     python3-pip \
     python3-venv \
-    ros-${ROS_DISTRO}-ros2launch \
-    ros-${ROS_DISTRO}-launch \
-    ros-${ROS_DISTRO}-launch-ros \
  && curl -fsSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key \
     | gpg --batch --yes --dearmor -o /usr/share/keyrings/ros-archive-keyring.gpg \
  && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo ${UBUNTU_CODENAME}) main" \
@@ -39,5 +36,5 @@ RUN rm -f /etc/apt/sources.list.d/ros*.list /etc/apt/sources.list.d/*ros* || tru
     python3-mpmath || true) \
  && apt-get -y autoremove \
  && printf "[global]\nindex-url = https://pypi.org/simple\n" > /etc/pip.conf \
- && echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> /root/.bashrc \
+ && echo '[ -f /opt/ros/'"${ROS_DISTRO}"'/setup.bash ] && source /opt/ros/'"${ROS_DISTRO}"'/setup.bash || source /opt/ros/'"${ROS_DISTRO}"'/install/setup.bash' >> /root/.bashrc \
  && rm -rf /var/lib/apt/lists/*
