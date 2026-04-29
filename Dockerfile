@@ -25,15 +25,10 @@ RUN rm -f /etc/apt/sources.list.d/ros*.list /etc/apt/sources.list.d/*ros* || tru
  && python3 -m pip install --no-cache-dir colcon-mixin \
  && colcon mixin add default https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml || true \
  && colcon mixin update default || true \
- && (DEBIAN_FRONTEND=noninteractive apt-get purge -y \
-    opencv-dev \
-    opencv-main \
-    opencv-libs \
-    opencv-python \
-    opencv-scripts \
-    opencv-licenses \
-    python3-sympy \
-    python3-mpmath || true) \
+ && (opencv_pkgs="$(dpkg-query -W -f='${Package}\n' '*opencv*' 2>/dev/null || true)" \
+    && if [ -n "${opencv_pkgs}" ]; then DEBIAN_FRONTEND=noninteractive apt-get purge -y ${opencv_pkgs}; fi \
+    && DEBIAN_FRONTEND=noninteractive apt-get purge -y python3-sympy python3-mpmath || true) \
+ && rm -rf /usr/local/lib/python3.10/dist-packages/cv2 /usr/lib/python3.10/dist-packages/cv2 \
  && apt-get -y autoremove \
  && printf "[global]\nindex-url = https://pypi.org/simple\n" > /etc/pip.conf \
  && echo '[ -f /opt/ros/'"${ROS_DISTRO}"'/setup.bash ] && source /opt/ros/'"${ROS_DISTRO}"'/setup.bash || source /opt/ros/'"${ROS_DISTRO}"'/install/setup.bash' >> /root/.bashrc \
